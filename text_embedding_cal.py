@@ -5,7 +5,7 @@ import torch
 import torch.backends.cudnn as cudnn
 
 from video_llama.common.config import Config
-# from video_llama.common.dist_utils import get_rank
+from video_llama.common.dist_utils import get_rank
 from video_llama.common.registry import registry
 from video_llama.conversation.conversation_video import Chat, Conversation, default_conversation,SeparatorStyle,conv_llava_llama_2
 import decord
@@ -13,6 +13,9 @@ decord.bridge.set_bridge('torch')
 
 from tqdm import tqdm
 import pandas as pd
+
+import os
+import os.path
 
 #%%
 # imports modules for registration
@@ -52,8 +55,8 @@ def compute_llama_sentence_embeddings(llama, tokenizer, texts: str | List[str], 
     return embs
 
 def main(
-    df_dir: str = "/home/ahmadi/video-ir/dataset/1KA/MSRVTT_JSFUSION_test.csv",
-    save_dir_path: str = "/home/ahmadi/video-ir/dataset/1KA/llama_txt_embedding_sum",
+    df_dir: str = "/home/ahmadi/video-ir/dataset/filtered_captions.csv",
+    save_dir_path: str = "/home/ahmadi/video-ir/dataset/llama_data/after_pooling/trainVal_embeddings/text/20cap/llama_txt_embedding_AveragePooling",
     First_element: bool = False,
     Max_pooling: bool = False,
     Average_pooling: bool = False,
@@ -81,14 +84,12 @@ def main(
 
 
     for i in tqdm(range(len(captions))):
-        print(i)
-            
         embeddings = compute_llama_sentence_embeddings(model.llama_model.model, tokenizer, captions[i])
         embeddings = embeddings.float()
         embeddings = embeddings.cpu().detach().numpy()
         
-        print(captions[i])
-        print(embeddings.shape)
+        # print(captions[i])
+        # print(embeddings.shape)
         
         if First_element:
             embeddings = embeddings[0][0]
@@ -102,10 +103,17 @@ def main(
         elif Sum:
             embeddings = np.sum(embeddings[0], axis=0)
         
-        print(embeddings.shape)
+        # print(embeddings.shape)
+        
+        embeddings = embeddings[0]
+        # print(embeddings.shape)
+        
             
-        break
                 
-                
-    np.save(save_dir_path + "/" + vid_names[i] + ".npy", embeddings)
+        p_init = save_dir_path + "/" + vid_names[i] 
+        
+        for j in range(20):
+            if os.path.isfile(p_init+"-"+ j + ".npy") == False:
+                np.save(p_init+"-"+ j + ".npy", embeddings)
+                break
     

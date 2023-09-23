@@ -33,7 +33,7 @@ class Chat:
 
 
     
-    def upload_video(self, video_path, conv, img_list):
+    def upload_video(self, video_path, img_list):
 
         msg = ""
         if isinstance(video_path, str):  # is a video path
@@ -67,20 +67,14 @@ class Chat:
                 audio_emb,_  = self.model.encode_audioQformer(audio)
                 img_list.append(image_emb)
                 img_list.append(audio_emb)
-                conv.system = ""
-                # conv.append_message(conv.roles[0], "The audio of this video is <Video><ImageHere></Video> ")
-                conv.append_message(conv.roles[0], "Close your eyes, open your ears and you imagine only based on the sound that: <ImageHere>. \
-                Close your ears, open your eyes and you see that <Video><ImageHere></Video>.  \
-                Now answer my question based on what you have just seen and heard.")
 
             else:  # only vison no audio
                 # conv.system = "You can understand the video that the user provides. Follow the instructions carefully and explain your answers in detail."
                 image_emb, _ = self.model.encode_videoQformer_visual(video)
                 img_list.append(image_emb)
-                conv.append_message(conv.roles[0], "<Video><ImageHere></Video> "+ msg)
             return img_list
 
-    def upload_video_without_audio(self, video_path, conv, img_list):
+    def upload_video_without_audio(self, video_path, img_list):
         msg = ""
         if isinstance(video_path, str):  # is a video path
             ext = os.path.splitext(video_path)[-1].lower()
@@ -103,7 +97,6 @@ class Chat:
         # conv.system = "You can understand the video that the user provides.  Follow the instructions carefully and explain your answers in detail."
         image_emb, _ = self.model.encode_videoQformer_visual(video)
         img_list.append(image_emb)
-        conv.append_message(conv.roles[0], "<Video><ImageHere></Video> "+ msg)
         return img_list
 
 

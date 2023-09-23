@@ -25,8 +25,8 @@ def parse_args():
 
 
 def main (
-        video_dir_path: str = "/home/ahmadi/video-ir/dataset/1KA/test_1k_compress/", 
-        save_dir_path: str = "/home/ahmadi/video-ir/dataset/1KA/llama_vid_embedding_sum/",
+        video_dir_path: str = "/home/ahmadi/video-ir/dataset/trainVal_vids/", 
+        save_dir_path: str = "/home/ahmadi/video-ir/dataset/llama_data/before_pooling/trainVal_embeddings/video",
         First_element: bool = False,
         Max_pooling: bool = False,
         Average_pooling: bool = False,
@@ -36,7 +36,6 @@ def main (
     print('Initializing Chat')
     args, remaining_args = parse_args()
     cfg = Config(args)
-
     model_config = cfg.model_cfg
     model_config.device_8bit = args.gpu_id
 
@@ -67,8 +66,10 @@ def main (
             
         elif Sum:
             list_emb = np.sum(list_emb, axis=0)
+        
+        # print(list_emb.shape)
             
-        np.save(save_dir_path + "/" + path[:-4] + ".npy", list_emb)
+        np.save(save_dir_path + '/' + path[:-4] + ".npy", list_emb)
     
 
 if __name__ == "__main__":
